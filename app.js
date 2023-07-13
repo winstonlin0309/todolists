@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const _ = require("lodash");
 
 const app = express();
 
@@ -56,6 +57,61 @@ async function main() {
 
   });
 
+  app.get("/:customListName", (req, res) => {
+    const customListName = _.capitalize(req.params.customListName);
+   
+    List.findOne({title: customListName}).then((foundName) => {
+      if(foundName === null) {
+        const list = new List({
+          title: customListName,
+          items: defaultItem
+        })
+
+        console.log("Title name not found, creating the todolist");
+        return list.save();
+      } else {
+
+        console.log("Title name found");
+        return foundName;
+      }
+    }).then((saveItems) => {
+        console.log("locating to the todolist");
+        res.render("list", {listTitle : customListName, newListItems : saveItems.items});
+    }).catch((err) => {
+      console.log(err);
+    });
+
+  });
+
+  app.get("/about", (req, res) => {
+    res.render("about");
+  });
+
+
+  app.post("/", (req, res) => {
+    const itemName = req.body.newItem;
+    const listTitle = req.body.list;
+    const item = new Item({
+      name:itemName,
+    });
+
+    if(listTitle === 'Today') {
+      item.save();
+      res.redirect("/");
+    } else {
+      List.findOne({title : listTitle}).then((foundItem) =>{
+        console.log(foundItem);
+        foundItem.items.push(item);
+        foundItem.save();
+        res.redirect("/" + listTitle);
+      }).catch((err) => {
+        console.log(err);
+      });
+
+    }
+
+  });
+
   app.post("/delete", (req, res) => {
     const itemId = req.body.checkbox;
     const listTitle = req.body.listTitle;
@@ -74,30 +130,6 @@ async function main() {
     }
 
   });
-
-  app.get("/:customListName", (req, res) => {
-    const customListName = req.params.customListName;
-
-  });
-
-  app.get("/about", (req, res) => {
-    res.render("about");
-  });
-
-  app.post("/", (req, res) => {
-    const itemName = req.body.newItem;
-    const listTitle = req.body.list;
-
-    const item = new Item({
-          name:itemName,
-        });
-
-    if(listTitle === 'Today') {
-      item.save();
-      res.redirect("/");
-    }
-
-  })
 
   app.listen(3000, () => {
     console.log("Connect Successfully");
