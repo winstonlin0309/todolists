@@ -126,7 +126,12 @@ async function main() {
         console.log(err);
       });
     } else {
-      Item.findOneAndUpdate({title : listTitle}, {$pull : {items : {_id : itemId}}})
+      List.findOneAndUpdate({title : listTitle}, {$pull : {items : {_id : itemId}}}).then(() => {
+        res.redirect("/" + listTitle);
+
+      }).catch((err) => {
+        console.log(err);
+      });
     }
 
   });
