@@ -20,16 +20,23 @@ async function main() {
 
   const Item = new mongoose.model("Item", itemSchema);
 
+  const listSchema = new mongoose.Schema({
+    title: String,
+    items:[itemSchema]
+  });
+
+  const List = new mongoose.model("List", listSchema);
+
   const item1 = new Item({
     name: "Welcome to your todolist!"
   });
 
   const item2 = new Item({
-    name: "Welcome to your todolist!"
+    name: "Hit the + button to add a new item"
   });
   
   const item3 = new Item({
-    name: "Welcome to your todolist!"
+    name: "<-- Hit this check box to delete an item"
   });
 
   const defaultItem = [item1, item2, item3];
@@ -49,8 +56,23 @@ async function main() {
 
   });
 
-  app.get("/delete", (req, res) => {
+  app.post("/delete", (req, res) => {
+    const itemId = req.body.checkbox;
+    const listTitle = req.body.listTitle;
     
+    console.log(listTitle);
+    if(listTitle === "Today") {
+      Item.deleteOne({_id:itemId}).then(() => {
+        console.log("Delete successfully");
+        res.redirect("/");
+
+      }).catch((err) => {
+        console.log(err);
+      });
+    } else {
+      Item.findOneAndUpdate({title : listTitle}, {$pull : {items : {_id : itemId}}})
+    }
+
   });
 
   app.get("/:customListName", (req, res) => {
