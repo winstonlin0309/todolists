@@ -89,7 +89,7 @@ async function main() {
 
 
   app.post("/", (req, res) => {
-    const itemName = req.body.newItem;
+    const itemName = _.capitalize(req.body.newItem);
     const listTitle = req.body.list;
     const item = new Item({
       name:itemName,
