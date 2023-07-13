@@ -13,7 +13,7 @@ async function main() {
   app.use(express.static('public'));
 
   //connect to todolistDB, if not exit, then create it
-  await mongoose.connect('mongodb+srv://winstonlin0309:Taozibaobao520.@cluster0.crrgcqo.mongodb.net//todolistDB'); 
+  await mongoose.connect('mongodb+srv://winstonlin0309:Taozibaobao520.@cluster0.crrgcqo.mongodb.net/todolistDB'); 
 
   const itemSchema = new mongoose.Schema({
     name : String
